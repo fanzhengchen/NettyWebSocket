@@ -2,10 +2,13 @@ package com.fzc.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.util.concurrent.GlobalEventExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +43,11 @@ public class ServerConfiguration {
     public NioEventLoopGroup provideWorkEventGroup() {
         logger.debug("work event group {} ", workThreadCount);
         return new NioEventLoopGroup(workThreadCount);
+    }
+
+    @Bean(name = "channelGroup")
+    public ChannelGroup provideChannelGroup() {
+        return new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
     }
 
 //    @Bean(name = "loggingHandler")

@@ -21,6 +21,9 @@ import javax.annotation.PreDestroy;
 @Component
 public class WebSocketServer implements IServer {
 
+    @Value("${webSocket.port}")
+    private int serverPort;
+
     @Autowired
     @Qualifier("serverBootStrap")
     private ServerBootstrap bootstrap;
@@ -40,12 +43,15 @@ public class WebSocketServer implements IServer {
     public WebSocketServer() {
     }
 
+    public void start() throws Exception {
+        start(serverPort);
+    }
+
     @Override
     public void start(int serverPort) throws Exception {
 
         bootstrap.group(bossGroup, workGroup)
                 .channel(NioServerSocketChannel.class)
-                .handler(new LoggingHandler(LogLevel.INFO))
                 .childHandler(new WebSocketServerInitializer());
 
         channel = bootstrap.bind(serverPort)

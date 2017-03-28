@@ -9,15 +9,14 @@ import org.springframework.context.ConfigurableApplicationContext;
 @SpringBootApplication
 public class NettyWebSocketApplication {
 
-    @Value("${webSocket.port}")
-    private static int serverPort;
+
 
     public static void main(String[] args) {
         ConfigurableApplicationContext ctx = SpringApplication.run(NettyWebSocketApplication.class, args);
 
         try {
             WebSocketServer webSocketServer = ctx.getBean("webSocketServer", WebSocketServer.class);
-            webSocketServer.start(serverPort);
+            webSocketServer.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
