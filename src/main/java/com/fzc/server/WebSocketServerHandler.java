@@ -25,9 +25,8 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 
     private WebSocketServerHandshaker handShaker;
 
-
     @Autowired
-    @Qualifier
+    @Qualifier("channelGroup")
     private ChannelGroup channelGroup;
 
     @Override
@@ -72,7 +71,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         if (webSocketFrame instanceof PingWebSocketFrame) {
 
         } else if (webSocketFrame instanceof CloseWebSocketFrame) {
-
+            handShaker.close(ctx.channel(), (CloseWebSocketFrame) webSocketFrame.retain());
         } else if (webSocketFrame instanceof TextWebSocketFrame) {
 
         } else if (webSocketFrame instanceof BinaryWebSocketFrame) {
