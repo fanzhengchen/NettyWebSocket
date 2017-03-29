@@ -2,10 +2,7 @@ package com.fzc.server;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.*;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.websocketx.*;
@@ -14,10 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 /**
  * Created by mark on 17-3-28.
  */
+@Component
 public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketServerHandler.class);
@@ -25,9 +24,13 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 
     private WebSocketServerHandshaker handShaker;
 
-    @Autowired
-    @Qualifier("channelGroup")
-    private ChannelGroup channelGroup;
+    private final ChannelGroup channelGroup;
+
+    public WebSocketServerHandler(ChannelGroup channelGroup) {
+        super();
+        this.channelGroup = channelGroup;
+        logger.debug("channel group \n{}\n{}", channelGroup, channelGroup.name());
+    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -39,6 +42,21 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         logger.debug("channel read {}\n{}\n{}\n", msg, ctx, this);
     }
 
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        super.channelActive(ctx);
+        if (channelGroup != null) {
+            channelGroup.add(ctx.channel());
+        }
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        super.channelInactive(ctx);
+        if (channelGroup != null) {
+            channelGroup.remove(ctx.channel());
+        }
+    }
 
     private void handleHttpFullRequest(ChannelHandlerContext ctx, FullHttpRequest httpRequest) {
 
@@ -68,11 +86,20 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
     }
 
     private void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame webSocketFrame) {
+        logger.debug("handle web socket frame");
         if (webSocketFrame instanceof PingWebSocketFrame) {
 
         } else if (webSocketFrame instanceof CloseWebSocketFrame) {
             handShaker.close(ctx.channel(), (CloseWebSocketFrame) webSocketFrame.retain());
         } else if (webSocketFrame instanceof TextWebSocketFrame) {
+
+//            TextWebSocketFrame frame = (TextWebSocketFrame) webSocketFrame;
+//            logger.debug("text web socket frame :" + frame.text());
+//
+//            ctx.channel().write(frame.retain());
+
+            broadcastMessage(ctx, webSocketFrame);
+
 
         } else if (webSocketFrame instanceof BinaryWebSocketFrame) {
 
@@ -110,5 +137,20 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
     private static String getWebSocketLocation(HttpRequest request) {
         String location = request.headers().get(HttpHeaderNames.HOST) + "/" + WEB_SOCKET_LOCATION;
         return "ws://" + location;
+    }
+
+    private void broadcastMessage(ChannelHandlerContext ctx, WebSocketFrame frame) {
+        final Channel channel = ctx.channel();
+
+        logger.debug("broadcast message {}\n{}\n{}\n", channelGroup, channel.id(), channelGroup.size());
+        for (Channel ch : channelGroup) {
+
+            logger.debug("channel id {}", ch);
+            if (!ch.equals(channel)) {
+                logger.debug("channel write {}", ch);
+                ch.writeAndFlush(frame.retain());
+            }
+        }
+
     }
 }

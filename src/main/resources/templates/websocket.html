@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+</head>
+
+<body>
+
+<script type="text/javascript">
+
+    var webSocket;
+    if (!window.WebSocket) {
+        alert("webSocket not supported");
+    } else {
+        webSocket = new WebSocket("ws://127.0.0.1:20000/webSocket");
+        webSocket.onopen = function (event) {
+            var ta = document.getElementById("textarea");
+            ta.value = ta.value + "\n" + "on open";
+        };
+
+        webSocket.onmessage = function (event) {
+
+            alert("message received " + event.data + " " + event);
+            var ta = document.getElementById("textarea");
+            ta.value = ta.value + "\n" + event.data;
+        };
+
+        webSocket.onclose = function (event) {
+            var ta = document.getElementById("textarea");
+            ta.value = ta.value + "\n" + "on close";
+        };
+
+    }
+
+    function sendMessage() {
+        var source = document.getElementById("messages");
+        var message = source.value;
+        var target = document.getElementById("textarea");
+        target.value = target.value + "\n" + message;
+        source.value = '';
+
+        alert(webSocket.readyState + " " + WebSocket.OPEN + " " + message);
+        if (webSocket.readyState == WebSocket.OPEN) {
+            webSocket.send(message);
+        } else {
+            alert("disconnected");
+        }
+    }
+
+</script>
+
+<div>
+    <button id="connect">connect</button>
+
+    <textarea id="textarea" rows="60"></textarea>
+
+    <button id="send_message" onclick="sendMessage()">send message</button>
+
+    <textarea id="messages" rows="20"></textarea>
+</div>
+
+
+</body>
+</html>

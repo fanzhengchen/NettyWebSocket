@@ -3,6 +3,7 @@ package com.fzc.server;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
@@ -36,6 +37,9 @@ public class WebSocketServer implements IServer {
     @Qualifier("workEventGroup")
     private NioEventLoopGroup workGroup;
 
+    @Autowired
+    @Qualifier("channelGroup")
+    private ChannelGroup channelGroup;
 
     private Channel channel;
 
@@ -52,7 +56,7 @@ public class WebSocketServer implements IServer {
 
         bootstrap.group(bossGroup, workGroup)
                 .channel(NioServerSocketChannel.class)
-                .childHandler(new WebSocketServerInitializer());
+                .childHandler(new WebSocketServerInitializer(channelGroup));
 
         channel = bootstrap.bind(serverPort)
                 .sync()
