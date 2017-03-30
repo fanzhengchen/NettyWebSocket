@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
@@ -14,6 +14,9 @@
     if (!window.WebSocket) {
         alert("webSocket not supported");
     } else {
+
+//        alert(D);
+
         webSocket = new WebSocket("ws://127.0.0.1:20000/webSocket");
         webSocket.onopen = function (event) {
             var ta = document.getElementById("textarea");
@@ -22,9 +25,10 @@
 
         webSocket.onmessage = function (event) {
 
-            alert("message received " + event.data + " " + event);
+
             var ta = document.getElementById("textarea");
             ta.value = ta.value + "\n" + event.data;
+            alert("message received " + event.data + " " + event);
         };
 
         webSocket.onclose = function (event) {
@@ -32,16 +36,17 @@
             ta.value = ta.value + "\n" + "on close";
         };
 
+
     }
 
     function sendMessage() {
         var source = document.getElementById("messages");
         var message = source.value;
-        var target = document.getElementById("textarea");
-        target.value = target.value + "\n" + message;
-        source.value = '';
+//        var target = document.getElementById("textarea");
+//        target.value = target.value + "\n" + message;
+//        source.value = '';
 
-        alert(webSocket.readyState + " " + WebSocket.OPEN + " " + message);
+//        alert(webSocket.readyState + " " + WebSocket.OPEN + " " + message);
         if (webSocket.readyState == WebSocket.OPEN) {
             webSocket.send(message);
         } else {
@@ -59,6 +64,7 @@
     <button id="send_message" onclick="sendMessage()">send message</button>
 
     <textarea id="messages" rows="20"></textarea>
+
 </div>
 
 

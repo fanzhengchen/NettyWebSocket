@@ -9,8 +9,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 @SpringBootApplication
 public class NettyWebSocketApplication {
 
-
-
     public static void main(String[] args) {
         ConfigurableApplicationContext ctx = SpringApplication.run(NettyWebSocketApplication.class, args);
 

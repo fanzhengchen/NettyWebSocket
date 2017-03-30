@@ -2,6 +2,8 @@ package com.fzc.server;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.buffer.UnpooledDirectByteBuf;
+import io.netty.buffer.UnpooledUnsafeDirectByteBuf;
 import io.netty.channel.*;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.*;
@@ -25,6 +27,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
     private WebSocketServerHandshaker handShaker;
 
     private final ChannelGroup channelGroup;
+
 
     public WebSocketServerHandler(ChannelGroup channelGroup) {
         super();
@@ -88,17 +91,20 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
     private void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame webSocketFrame) {
         logger.debug("handle web socket frame");
         if (webSocketFrame instanceof PingWebSocketFrame) {
-
+            ByteBuf byteBuf = Unpooled.copiedBuffer("pong webSocket frame yutou".getBytes());
+            PongWebSocketFrame pongWebSocketFrame = new PongWebSocketFrame(byteBuf);
+            ctx.write(pongWebSocketFrame);
         } else if (webSocketFrame instanceof CloseWebSocketFrame) {
             handShaker.close(ctx.channel(), (CloseWebSocketFrame) webSocketFrame.retain());
         } else if (webSocketFrame instanceof TextWebSocketFrame) {
 
-//            TextWebSocketFrame frame = (TextWebSocketFrame) webSocketFrame;
+            TextWebSocketFrame frame = (TextWebSocketFrame) webSocketFrame;
 //            logger.debug("text web socket frame :" + frame.text());
 //
 //            ctx.channel().write(frame.retain());
 
-            broadcastMessage(ctx, webSocketFrame);
+            logger.debug("text web socket frame " + frame.text());
+            broadcastMessage(ctx, frame);
 
 
         } else if (webSocketFrame instanceof BinaryWebSocketFrame) {
@@ -146,10 +152,11 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         for (Channel ch : channelGroup) {
 
             logger.debug("channel id {}", ch);
-            if (!ch.equals(channel)) {
-                logger.debug("channel write {}", ch);
-                ch.writeAndFlush(frame.retain());
-            }
+//            if (ch.equals(channel)) {
+            logger.debug("channel write {}", ch);
+            ch.writeAndFlush(frame.retain());
+
+//            }
         }
 
     }

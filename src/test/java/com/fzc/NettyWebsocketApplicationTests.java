@@ -92,7 +92,7 @@ public class NettyWebsocketApplicationTests {
                 latch.countDown();
             }
         });
-        latch.await();
+//        latch.await();
     }
 
 
