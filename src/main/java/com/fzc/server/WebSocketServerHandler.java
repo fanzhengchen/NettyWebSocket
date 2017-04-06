@@ -154,7 +154,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
             logger.debug("channel id {}", ch);
 //            if (ch.equals(channel)) {
             logger.debug("channel write {}", ch);
-            ch.writeAndFlush(frame.retain());
+            ch.writeAndFlush(frame.copy());
 
 //            }
         }
