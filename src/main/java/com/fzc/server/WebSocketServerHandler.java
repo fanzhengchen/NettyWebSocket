@@ -93,7 +93,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         if (webSocketFrame instanceof PingWebSocketFrame) {
             ByteBuf byteBuf = Unpooled.copiedBuffer("pong webSocket frame yutou".getBytes());
             PongWebSocketFrame pongWebSocketFrame = new PongWebSocketFrame(byteBuf);
-            ctx.write(pongWebSocketFrame);
+            ctx.writeAndFlush(pongWebSocketFrame);
         } else if (webSocketFrame instanceof CloseWebSocketFrame) {
             handShaker.close(ctx.channel(), (CloseWebSocketFrame) webSocketFrame.retain());
         } else if (webSocketFrame instanceof TextWebSocketFrame) {

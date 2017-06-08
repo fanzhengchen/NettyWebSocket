@@ -26,9 +26,9 @@ public class NettyWebSocketUnitTests {
     @Test
     public void testWebSocketHandShake() throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
+        webSocketHandShake();
 //        webSocketHandShake();
-//        webSocketHandShake();
-//        latch.await();
+        latch.await();
     }
 
 
