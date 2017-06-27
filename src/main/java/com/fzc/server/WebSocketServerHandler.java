@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.Charset;
+
 /**
  * Created by mark on 17-3-28.
  */
@@ -103,12 +105,19 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 //
 //            ctx.channel().write(frame.retain());
 
-            logger.debug("text web socket frame " + frame.text());
+            logger.debug("text web socket frame \r\n" +
+                    "==============================================\r\n"
+                    + frame.text()
+                    + "\r\n==========================================\r\n");
             broadcastMessage(ctx, frame);
 
 
         } else if (webSocketFrame instanceof BinaryWebSocketFrame) {
+            BinaryWebSocketFrame frame = (BinaryWebSocketFrame)webSocketFrame;
+            logger.info(frame.content().toString(Charset.defaultCharset()));
+            logger.debug(frame.content().toString());
 
+            ctx.writeAndFlush(frame.retain());
         }
     }
 
