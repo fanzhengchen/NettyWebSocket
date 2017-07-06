@@ -103,7 +103,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
             TextWebSocketFrame frame = (TextWebSocketFrame) webSocketFrame;
 //            logger.debug("text web socket frame :" + frame.text());
 //
-//            ctx.channel().write(frame.retain());
+            ctx.channel().write(frame.retain());
 
             logger.debug("text web socket frame \r\n" +
                     "==============================================\r\n"
@@ -113,11 +113,13 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 
 
         } else if (webSocketFrame instanceof BinaryWebSocketFrame) {
-            BinaryWebSocketFrame frame = (BinaryWebSocketFrame)webSocketFrame;
+            BinaryWebSocketFrame frame = (BinaryWebSocketFrame) webSocketFrame;
             logger.info(frame.content().toString(Charset.defaultCharset()));
             logger.debug(frame.content().toString());
 
             ctx.writeAndFlush(frame.retain());
+
+            broadcastMessage(ctx, frame);
         }
     }
 
@@ -161,11 +163,11 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         for (Channel ch : channelGroup) {
 
             logger.debug("channel id {}", ch);
-//            if (ch.equals(channel)) {
             logger.debug("channel write {}", ch);
-            ch.writeAndFlush(frame.copy());
+            if (ch != channel) {
+                ch.writeAndFlush(frame.retain());
+            }
 
-//            }
         }
 
     }
