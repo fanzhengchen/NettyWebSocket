@@ -28,7 +28,7 @@ public class NettyWebSocketUnitTests {
         CountDownLatch latch = new CountDownLatch(1);
         webSocketHandShake();
 //        webSocketHandShake();
-        latch.await();
+//        latch.await();
     }
 
 
